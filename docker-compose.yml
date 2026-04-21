@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  tad-mcp-rvt-qto:
+    build: .
+    environment:
+      - REVIT_BRIDGE_URL=http://host.docker.internal:55234/mcp
+    stdin_open: true
+    tty: true

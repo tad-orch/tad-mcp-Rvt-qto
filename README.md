@@ -1,145 +1,128 @@
-# TAD Revit Quantity Takeoff MCP Server
+# TAD Revit Quantity Takeoff — MCP Server
 
-A Model Context Protocol (MCP) server for extracting detailed quantity takeoffs from Revit models. This server provides quantification tools for architectural, structural, and MEP (Mechanical, Electrical, Plumbing) elements, designed for integration with the Autodesk Design & Make Marketplace.
+A [Model Context Protocol](https://modelcontextprotocol.io) server that exposes **24 QTO tools** for Revit models, designed for the Autodesk Design & Make Marketplace.
 
-## Features
+AI assistants (Claude, Cursor, etc.) can call these tools to extract wall areas, beam volumes, pipe lengths, fixture counts, and more — directly from the active Revit model via a lightweight local bridge.
 
-- **Architectural Quantification**: Walls, floors, ceilings, railings, and family instance counts
-- **Structural Analysis**: Beams, columns, foundations, and concrete volume calculations
-- **MEP Systems**: Pipes, ducts, cable trays, conduits, and component counts
-- **Flexible Grouping**: Group results by type, level, system, or phase
-- **Diameter Bucketing**: Optional pipe diameter range breakdown
-- **Volume Calculations**: Support for both linear and volumetric metrics
+---
 
-## Tools
+## Two deployment modes
 
-### Architectural (5 tools)
-- `qto_walls` - Wall quantities (length, area, volume)
-- `qto_floors` - Floor quantities (area, volume)
-- `qto_ceilings` - Ceiling quantities (area)
-- `qto_railings` - Railing quantities (linear meters)
-- `qto_families_count` - Family instance counts by category/family/type/level
+| Mode | Transport | Best for |
+|------|-----------|----------|
+| **Local (Docker)** | `stdio` | End users on Windows/Mac with Revit installed |
+| **Cloud (Lambda)** | HTTP / StreamableHTTP | SaaS integrations, remote access |
 
-### Structural (4 tools)
-- `qto_struct_beams` - Beam quantities (linear meters, volume)
-- `qto_struct_columns` - Column quantities (linear meters, volume)
-- `qto_struct_foundations` - Foundation counts and volumes
-- `qto_struct_concrete` - Combined concrete volume analysis
+- **Local mode**: Claude Desktop or Cursor launches a Docker container. The container calls a bridge running inside Revit on `localhost:55234`. No cloud required.
+- **Cloud mode**: An Express server handles HTTP `POST /mcp` requests using `StreamableHTTPServerTransport`. Deploy to AWS Lambda or any Node.js host.
 
-### MEP Systems (13 tools)
-- `qto_mep_pipes` - Pipe quantities with optional diameter bucketing
-- `qto_mep_ducts` - Duct quantities with surface area
-- `qto_mep_cabletrays` - Cable tray linear meters
-- `qto_mep_conduits` - Conduit linear meters
-- `qto_mep_duct_fittings_count` - Duct fittings count
-- `qto_mep_air_terminals_count` - Air terminal counts
-- `qto_mep_mechanical_equip_count` - Mechanical equipment counts
-- `qto_mep_pipe_fittings_count` - Pipe fittings count
-- `qto_mep_pipe_accessories_count` - Pipe accessories count
-- `qto_mep_plumbing_equipment_count` - Plumbing equipment counts
-- `qto_mep_plumbing_fixtures_count` - Plumbing fixture counts
-- `qto_electrical_equipment_count` - Electrical equipment counts
-- `qto_electrical_lighting_count` - Lighting fixture counts
-- `qto_electrical_devices_count` - Electrical device counts
+See [README-LOCAL.md](./README-LOCAL.md) for the step-by-step Docker setup guide.
 
-## Installation
+---
 
-```bash
-git clone https://github.com/tad-orchestrator/tad-mcp-Rvt-qto.git
-cd tad-mcp-Rvt-qto
-npm install
-```
+## Tools (24 total)
 
-## Configuration
+### Architectural (5)
+| Tool | Returns |
+|------|---------|
+| `qto_walls` | Length (m), area (m²), volume (m³) grouped by type / level / phase |
+| `qto_floors` | Area (m²), volume (m³) grouped by type / level |
+| `qto_ceilings` | Area (m²) grouped by type / level |
+| `qto_railings` | Linear meters grouped by type / level |
+| `qto_families_count` | Instance counts grouped by category / family / type / level |
 
-Create a `.env` file from the template:
+### Structural (4)
+| Tool | Returns |
+|------|---------|
+| `qto_struct_beams` | Linear meters + volume (m³) grouped by type / level / material |
+| `qto_struct_columns` | Linear meters + volume (m³) grouped by type / level / material |
+| `qto_struct_foundations` | Count + volume (m³) grouped by type / level |
+| `qto_struct_concrete` | Combined concrete volumes for beams, columns, foundations |
 
-```bash
-cp .env.example .env
-```
+### MEP & Electrical (15)
+| Tool | Returns |
+|------|---------|
+| `qto_mep_pipes` | Linear meters, optional diameter-bucket breakdown |
+| `qto_mep_ducts` | Linear meters + surface area (m²) |
+| `qto_mep_cabletrays` | Linear meters |
+| `qto_mep_conduits` | Linear meters |
+| `qto_mep_duct_fittings_count` | Count |
+| `qto_mep_air_terminals_count` | Count |
+| `qto_mep_mechanical_equip_count` | Count |
+| `qto_mep_pipe_fittings_count` | Count |
+| `qto_mep_pipe_accessories_count` | Count |
+| `qto_mep_plumbing_equipment_count` | Count |
+| `qto_mep_plumbing_fixtures_count` | Count |
+| `qto_electrical_equipment_count` | Count |
+| `qto_electrical_lighting_count` | Count |
+| `qto_electrical_devices_count` | Count |
 
-Set the Revit bridge URL (default is `http://127.0.0.1:55234/mcp`):
+---
 
-```
-REVIT_BRIDGE_URL=http://127.0.0.1:55234/mcp
-```
+## Response format
 
-## Building
-
-```bash
-npm run build
-```
-
-## Running
-
-### Development
-```bash
-npm run dev
-```
-
-### Production
-```bash
-npm run build
-npm start
-```
-
-## Integration with MCP Client
-
-The server uses the Model Context Protocol (MCP) with stdio transport. Configure your MCP client to launch:
-
-```json
-{
-  "mcpServers": {
-    "tad-mcp-rvt-qto": {
-      "command": "node",
-      "args": ["/path/to/tad-mcp-rvt-qto/dist/index.js"],
-      "env": {
-        "REVIT_BRIDGE_URL": "http://127.0.0.1:55234/mcp"
-      }
-    }
-  }
-}
-```
-
-## Architecture
-
-The server is organized into three tool modules:
-
-- **bridge.ts** - Handles communication with the Revit bridge service
-- **tools/architectural.ts** - Architectural quantification tools
-- **tools/structural.ts** - Structural quantification tools
-- **tools/mep.ts** - MEP systems quantification tools
-
-Each tool validates input using Zod schemas and returns structured JSON responses with summary statistics.
-
-## Response Format
-
-All quantification tools return a consistent structure:
+All tools return the same shape:
 
 ```json
 {
   "data": [
-    {
-      "group": "Type A",
-      "count": 42,
-      "length_m": 150.5,
-      "area_m2": 1250.0,
-      "volume_m3": 625.0
-    }
+    { "group": "Concrete Wall 200mm", "count": 42, "length_m": 150.5, "area_m2": 1250.0 }
   ],
   "summary": {
     "total_count": 150,
     "total_length_m": 500.0,
-    "total_area_m2": 5000.0,
-    "total_volume_m3": 2500.0
+    "total_area_m2": 5000.0
   }
 }
 ```
 
-## Contributing
+---
 
-For issues, feature requests, or contributions, please refer to the project repository.
+## Development
+
+```bash
+npm install
+npm run dev:local   # stdio mode
+npm run dev:http    # HTTP mode on port 3000
+npm run build       # compile to dist/
+```
+
+### Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `REVIT_BRIDGE_URL` | `http://127.0.0.1:55234/mcp` | Address of the Revit bridge |
+| `PORT` | `3000` | HTTP server port (cloud mode only) |
+
+---
+
+## Deployment
+
+### Local (Docker)
+See [README-LOCAL.md](./README-LOCAL.md).
+
+### Cloud (AWS Lambda)
+Push to `main` — the GitHub Actions workflow in `.github/workflows/deploy.yml` builds, zips, and deploys automatically.
+
+Requires repository secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`.
+
+---
+
+## Architecture
+
+```
+Claude / Cursor
+     │  stdio or HTTP/MCP
+     ▼
+server.stdio.ts  OR  server.http.ts
+     │
+register-tools.ts  (architectural + structural + mep)
+     │
+bridge.ts  ──►  Revit Bridge (localhost:55234)  ──►  Revit API
+```
+
+---
 
 ## License
 
-Proprietary - Autodesk Design & Make Marketplace
+Proprietary — Autodesk Design & Make Marketplace
