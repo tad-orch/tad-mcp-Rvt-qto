@@ -1,0 +1,110 @@
+{
+  "mcp_manifest_version": "1.0",
+  "app_model": "A",
+  "mcp_spec_version": "2025-11-25",
+  "server": {
+    "name": "tad-mcp-rvt-qto",
+    "transport": "stdio"
+  },
+  "tools": [
+    {
+      "name": "qto_walls",
+      "description": "Returns wall quantities from the active Revit model grouped by type, level, or phase, including length, area, and volume metrics."
+    },
+    {
+      "name": "qto_floors",
+      "description": "Returns floor quantities grouped by type or level, including area and volume."
+    },
+    {
+      "name": "qto_ceilings",
+      "description": "Returns ceiling quantities grouped by type or level, including area."
+    },
+    {
+      "name": "qto_railings",
+      "description": "Returns railing quantities in linear meters grouped by type or level."
+    },
+    {
+      "name": "qto_families_count",
+      "description": "Returns counts of family instances in the model grouped by category, family, type, or level."
+    },
+    {
+      "name": "qto_struct_beams",
+      "description": "Returns structural beam quantities grouped by type or level, including linear meters and optional volume."
+    },
+    {
+      "name": "qto_struct_columns",
+      "description": "Returns structural column quantities grouped by type or level, including linear meters and optional volume."
+    },
+    {
+      "name": "qto_struct_foundations",
+      "description": "Returns structural foundation counts and volumes grouped by type or level."
+    },
+    {
+      "name": "qto_struct_concrete",
+      "description": "Returns combined concrete volumes and linear meters for all structural concrete elements."
+    },
+    {
+      "name": "qto_mep_pipes",
+      "description": "Returns pipe quantities in linear meters grouped by system, type, or level, with optional diameter bucket breakdown."
+    },
+    {
+      "name": "qto_mep_ducts",
+      "description": "Returns duct quantities in linear meters grouped by system, type, or level, including surface area estimates."
+    },
+    {
+      "name": "qto_mep_cabletrays",
+      "description": "Returns cable tray quantities in linear meters grouped by type or level."
+    },
+    {
+      "name": "qto_mep_conduits",
+      "description": "Returns conduit quantities in linear meters grouped by type or level."
+    },
+    {
+      "name": "qto_mep_duct_fittings_count",
+      "description": "Returns counts of duct fittings grouped by type or level."
+    },
+    {
+      "name": "qto_mep_air_terminals_count",
+      "description": "Returns counts of air terminals grouped by type or level."
+    },
+    {
+      "name": "qto_mep_mechanical_equip_count",
+      "description": "Returns counts of mechanical equipment grouped by type or level."
+    },
+    {
+      "name": "qto_mep_pipe_fittings_count",
+      "description": "Returns counts of pipe fittings grouped by type or level."
+    },
+    {
+      "name": "qto_mep_pipe_accessories_count",
+      "description": "Returns counts of pipe accessories grouped by type or level."
+    },
+    {
+      "name": "qto_mep_plumbing_equipment_count",
+      "description": "Returns counts of plumbing equipment grouped by type or level."
+    },
+    {
+      "name": "qto_mep_plumbing_fixtures_count",
+      "description": "Returns counts of plumbing fixtures grouped by type or level."
+    },
+    {
+      "name": "qto_electrical_equipment_count",
+      "description": "Returns counts of electrical equipment grouped by type or level."
+    },
+    {
+      "name": "qto_electrical_lighting_count",
+      "description": "Returns counts of lighting fixtures grouped by type or level."
+    },
+    {
+      "name": "qto_electrical_devices_count",
+      "description": "Returns counts of electrical devices grouped by type or level."
+    }
+  ],
+  "resources": [],
+  "prompts": [],
+  "external_endpoints": [],
+  "autodesk_apis_used": [
+    "Revit API - Element quantities and geometry"
+  ],
+  "ai_llm_providers": []
+}
