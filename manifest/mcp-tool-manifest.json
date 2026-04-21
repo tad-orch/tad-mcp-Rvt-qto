@@ -98,6 +98,26 @@
     {
       "name": "qto_electrical_devices_count",
       "description": "Returns counts of electrical devices grouped by type or level."
+    },
+    {
+      "name": "qto_rooms",
+      "description": "Returns room quantities from the active Revit model grouped by level or type, including area, volume, and perimeter."
+    },
+    {
+      "name": "qto_roofs",
+      "description": "Returns roof quantities grouped by type or level, including area and volume."
+    },
+    {
+      "name": "qto_struct_rebar",
+      "description": "Returns rebar quantities grouped by diameter, level, or type, including total length and weight."
+    },
+    {
+      "name": "qto_mep_duct_insulation",
+      "description": "Returns duct insulation quantities grouped by type or level, including total length and surface area."
+    },
+    {
+      "name": "qto_mep_pipe_insulation",
+      "description": "Returns pipe insulation quantities grouped by type or level, including total length."
     }
   ],
   "resources": [],

@@ -71,6 +71,28 @@ const QtoStructConcreteInputSchema = z.object({
   includeLinearMeters: z.boolean().default(false).describe('Include linear meters for beams'),
 });
 
+const QtoStructRebarInputSchema = z.object({
+  groupBy: z.enum(['diameter', 'level', 'type']).default('diameter'),
+  level: z.string().optional().describe('Level name to filter by'),
+  includeTotalWeight: z.boolean().default(true).describe('Include total weight in kg'),
+});
+
+const QtoStructRebarResponseSchema = z.object({
+  data: z.array(
+    z.object({
+      group: z.string(),
+      count: z.number(),
+      total_length_m: z.number(),
+      total_weight_kg: z.number().optional(),
+    })
+  ),
+  summary: z.object({
+    total_count: z.number(),
+    total_length_m: z.number(),
+    total_weight_kg: z.number().optional(),
+  }),
+});
+
 const QtoStructConcreteResponseSchema = z.object({
   data: z.object({
     beams: z.object({
@@ -152,6 +174,22 @@ export function registerStructuralTools(server: McpServer): void {
         includeLinearMeters: input.includeLinearMeters,
       });
       const validated = QtoStructConcreteResponseSchema.parse(result);
+      return { content: [{ type: 'text', text: JSON.stringify(validated, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'qto_struct_rebar',
+    'Returns rebar quantities grouped by diameter, level, or type, including total length and weight.',
+    QtoStructRebarInputSchema.shape,
+    async (args) => {
+      const input = QtoStructRebarInputSchema.parse(args);
+      const result = await callBridge('qto.struct.rebar', {
+        groupBy: input.groupBy,
+        level: input.level,
+        includeTotalWeight: input.includeTotalWeight,
+      });
+      const validated = QtoStructRebarResponseSchema.parse(result);
       return { content: [{ type: 'text', text: JSON.stringify(validated, null, 2) }] };
     }
   );

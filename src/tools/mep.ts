@@ -100,6 +100,46 @@ const QtoSimpleGroupByInputSchema = z.object({
   groupBy: z.enum(['type', 'level', 'system']).default('type'),
 });
 
+const QtoMepDuctInsulationInputSchema = z.object({
+  groupBy: z.enum(['type', 'level']).default('type'),
+  level: z.string().optional().describe('Level to filter by'),
+});
+
+const QtoMepDuctInsulationResponseSchema = z.object({
+  data: z.array(
+    z.object({
+      group: z.string(),
+      count: z.number(),
+      total_length_m: z.number(),
+      total_area_m2: z.number(),
+    })
+  ),
+  summary: z.object({
+    total_count: z.number(),
+    total_length_m: z.number(),
+    total_area_m2: z.number(),
+  }),
+});
+
+const QtoMepPipeInsulationInputSchema = z.object({
+  groupBy: z.enum(['type', 'level']).default('type'),
+  level: z.string().optional().describe('Level to filter by'),
+});
+
+const QtoMepPipeInsulationResponseSchema = z.object({
+  data: z.array(
+    z.object({
+      group: z.string(),
+      count: z.number(),
+      total_length_m: z.number(),
+    })
+  ),
+  summary: z.object({
+    total_count: z.number(),
+    total_length_m: z.number(),
+  }),
+});
+
 export function registerMepTools(server: McpServer): void {
   server.tool(
     'qto_mep_pipes',
@@ -278,6 +318,36 @@ export function registerMepTools(server: McpServer): void {
       const input = QtoSimpleGroupByInputSchema.parse(args);
       const result = await callBridge('qto_electrical_devices_count', { groupBy: input.groupBy });
       const validated = QtoCountResponseSchema.parse(result);
+      return { content: [{ type: 'text', text: JSON.stringify(validated, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'qto_mep_duct_insulation',
+    'Returns duct insulation quantities grouped by type or level, including total length and surface area.',
+    QtoMepDuctInsulationInputSchema.shape,
+    async (args) => {
+      const input = QtoMepDuctInsulationInputSchema.parse(args);
+      const result = await callBridge('qto.mep.duct_insulation', {
+        groupBy: input.groupBy,
+        level: input.level,
+      });
+      const validated = QtoMepDuctInsulationResponseSchema.parse(result);
+      return { content: [{ type: 'text', text: JSON.stringify(validated, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'qto_mep_pipe_insulation',
+    'Returns pipe insulation quantities grouped by type or level, including total length.',
+    QtoMepPipeInsulationInputSchema.shape,
+    async (args) => {
+      const input = QtoMepPipeInsulationInputSchema.parse(args);
+      const result = await callBridge('qto.mep.pipe_insulation', {
+        groupBy: input.groupBy,
+        level: input.level,
+      });
+      const validated = QtoMepPipeInsulationResponseSchema.parse(result);
       return { content: [{ type: 'text', text: JSON.stringify(validated, null, 2) }] };
     }
   );

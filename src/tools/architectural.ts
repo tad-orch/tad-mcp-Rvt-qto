@@ -105,6 +105,49 @@ const QtoFamiliesCountResponseSchema = z.object({
   }),
 });
 
+const QtoRoomsInputSchema = z.object({
+  groupBy: z.enum(['level', 'type']).default('level'),
+  level: z.string().optional().describe('Level name to filter by'),
+});
+
+const QtoRoomsResponseSchema = z.object({
+  data: z.array(
+    z.object({
+      group: z.string(),
+      count: z.number(),
+      area_m2: z.number(),
+      volume_m3: z.number().optional(),
+      perimeter_m: z.number().optional(),
+    })
+  ),
+  summary: z.object({
+    total_count: z.number(),
+    total_area_m2: z.number(),
+    total_volume_m3: z.number().optional(),
+  }),
+});
+
+const QtoRoofsInputSchema = z.object({
+  groupBy: z.enum(['type', 'level']).default('type'),
+  level: z.string().optional().describe('Level name to filter by'),
+});
+
+const QtoRoofsResponseSchema = z.object({
+  data: z.array(
+    z.object({
+      group: z.string(),
+      count: z.number(),
+      area_m2: z.number(),
+      volume_m3: z.number().optional(),
+    })
+  ),
+  summary: z.object({
+    total_count: z.number(),
+    total_area_m2: z.number(),
+    total_volume_m3: z.number().optional(),
+  }),
+});
+
 export function registerArchitecturalTools(server: McpServer): void {
   server.tool(
     'qto_walls',
@@ -167,6 +210,30 @@ export function registerArchitecturalTools(server: McpServer): void {
         level: input.level,
       });
       const validated = QtoFamiliesCountResponseSchema.parse(result);
+      return { content: [{ type: 'text', text: JSON.stringify(validated, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'qto_rooms',
+    'Returns room quantities from the active Revit model grouped by level or type, including area, volume, and perimeter.',
+    QtoRoomsInputSchema.shape,
+    async (args) => {
+      const input = QtoRoomsInputSchema.parse(args);
+      const result = await callBridge('qto.rooms', { groupBy: input.groupBy, level: input.level });
+      const validated = QtoRoomsResponseSchema.parse(result);
+      return { content: [{ type: 'text', text: JSON.stringify(validated, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'qto_roofs',
+    'Returns roof quantities grouped by type or level, including area and volume.',
+    QtoRoofsInputSchema.shape,
+    async (args) => {
+      const input = QtoRoofsInputSchema.parse(args);
+      const result = await callBridge('qto.roofs', { groupBy: input.groupBy, level: input.level });
+      const validated = QtoRoofsResponseSchema.parse(result);
       return { content: [{ type: 'text', text: JSON.stringify(validated, null, 2) }] };
     }
   );

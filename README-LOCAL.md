@@ -42,6 +42,11 @@ It does this by calling 24 tools that read data from the active Revit model thro
 | 21 | `qto_electrical_equipment_count` | Electrical equipment count |
 | 22 | `qto_electrical_lighting_count` | Lighting fixture count |
 | 23 | `qto_electrical_devices_count` | Electrical device count |
+| 24 | `qto_rooms` | Room area (m²), volume (m³), perimeter (m) |
+| 25 | `qto_roofs` | Roof area (m²) and volume (m³) |
+| 26 | `qto_struct_rebar` | Rebar total length (m) and weight (kg) |
+| 27 | `qto_mep_duct_insulation` | Duct insulation length (m) and surface area (m²) |
+| 28 | `qto_mep_pipe_insulation` | Pipe insulation total length (m) |
 
 ---
 
